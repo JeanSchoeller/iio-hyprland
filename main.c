@@ -94,7 +94,7 @@ void handle_orientation(enum Orientation orientation) {
     // (and pray that our lord and savior vaxry won't change hyprctl output)
     system_fmt("while IFS=$'\n' read -r device ; do "
             "hyprctl keyword device:\"$device\":transform %d; "
-            "done <<< \"$(hyprctl devices | awk '/Touch Device at|Tablet at/ {getline;print $1}')\"",
+            "done <<< \"$(hyprctl devices | awk '/Touch Device at/ {getline;print $1}')\"",
             orientation);
 }
 
