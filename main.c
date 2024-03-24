@@ -91,11 +91,9 @@ void handle_orientation(enum Orientation orientation) {
     system_fmt("hyprctl keyword monitor %s,transform,%d", output, orientation);
 
     // transform touch devices
-    // (and pray that our lord and savior vaxry won't change hyprctl output)
-    system_fmt("while IFS=$'\n' read -r device ; do "
-            "hyprctl keyword device:\"$device\":transform %d; "
-            "done <<< \"$(hyprctl devices | awk '/Touch Device at|Tablet at/ {getline;print $1}')\"",
-            orientation);
+    system_fmt("hyprctl keyword input:touchdevice:transform %d", orientation);
+    system_fmt("hyprctl keyword input:tablet:transform %d", orientation);
+
 }
 
 DBusMessage* request_orientation(DBusConnection* conn) {
