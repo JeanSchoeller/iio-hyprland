@@ -204,7 +204,6 @@ int main(int argc, char* argv[]) {
         if (strcmp(argv[i], "--rotate-master-layout") == 0) {
             rotate_master_layout = 1; // Enable rotate-layout if flag is found
         } else {
-            // Temporarily hold the potential output argument
             output = argv[i];
         }
     }
