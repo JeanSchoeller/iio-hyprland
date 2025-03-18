@@ -212,7 +212,7 @@ char* get_monitor_id(const char* monitor_name) {
     // This is a workaround to get monitor ID instead
 
     char command[256];
-    snprintf(command, sizeof(command), "hyprctl monitors %s -j | jq -r '.[] | select(.name==\"%s\") | .id'", monitor_name, monitor_name);
+    snprintf(command, sizeof(command), "hyprctl monitors -j all | jq -r '.[] | select(.name==\"%s\") | .id'", monitor_name, monitor_name);
     FILE* fp = popen(command, "r");
     if (fp == NULL) {
         perror("popen");
