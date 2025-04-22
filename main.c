@@ -13,6 +13,8 @@ DBusError error;
 char* output = "eDP-1"; // Default output device
 int rotate_master_layout = 0; // Default layout
 
+enum Orientation last_handled_orientation = Undefined;
+
 void dbus_disconnect(DBusConnection* connection) {
     dbus_connection_flush(connection);
     dbus_connection_close(connection);
@@ -85,7 +87,7 @@ void system_fmt(char* format, ...) {
 }
 
 void handle_orientation(enum Orientation orientation, const char* monitor_id) {
-    if (orientation == Undefined)
+    if (orientation == Undefined || orientation == last_handled_orientation)
         return;
 
     // Ran if the --either --left-master or --right-master is pass in
@@ -123,6 +125,8 @@ void handle_orientation(enum Orientation orientation, const char* monitor_id) {
         system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation, orientation, orientation);
 
     }
+
+    last_handled_orientation = orientation;
 }
 
 DBusMessage* request_orientation(DBusConnection* conn) {
