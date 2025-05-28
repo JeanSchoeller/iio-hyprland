@@ -12,7 +12,7 @@ enum Orientation { Normal, LeftUp, BottomUp, RightUp, Undefined};
 DBusError error;
 char* output = "eDP-1"; // Default output device
 int rotate_master_layout = 0; // Default layout
-char isRotationUnlocked = 1;
+char isRotationUnlocked = 1; //Default rotation is unlocked
 
 void dbus_disconnect(DBusConnection* connection) {
     dbus_connection_flush(connection);
@@ -90,7 +90,7 @@ void handle_lock_rotation(int sig){
 }
 
 void handle_orientation(enum Orientation orientation, const char* monitor_id) {
-    if (orientation == Undefined || isRotationUnlocked)
+    if (orientation == Undefined || !isRotationUnlocked)
         return;
 
     // Ran if the --either --left-master or --right-master is pass in
