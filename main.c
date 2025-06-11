@@ -201,7 +201,12 @@ void listen_orientation(DBusConnection* connection, const char* monitor_id) {
         if (msg != NULL) {
             if (dbus_message_is_signal(msg, "org.freedesktop.DBus.Properties",
                     "PropertiesChanged")) {
-                handle_orientation(parse_orientation_signal(msg), monitor_id);
+                if (parse_orientation_signal(msg) != Undefined) {
+                    // Handle batches of messages from sensitive sensors
+                    usleep(1000 * 300); // 300ms
+                    dbus_connection_flush(connection);
+                    init_orientation(connection, monitor_id);
+                }
             } else {
                 dbus_message_unref(msg);
                 break;
