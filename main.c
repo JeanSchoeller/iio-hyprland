@@ -13,6 +13,8 @@ DBusError error;
 char* output = "eDP-1"; // Default output device
 int rotate_master_layout = 0; // Default layout
 
+char flip_bottom_up = 0; //Default orientation is not flipped 
+char isRotationUnlocked = 1; //Default rotation is unlocked
 enum Orientation last_handled_orientation = Undefined;
 
 void dbus_disconnect(DBusConnection* connection) {
@@ -41,10 +43,10 @@ DBusConnection* dbus_connect(void) {
 
 enum Orientation property_to_enum(const char* orientation) {
     if (!strcmp(orientation, "normal")) {
-        return Normal;
+        return flip_bottom_up?BottomUp:Normal;
     }
     if (!strcmp(orientation, "bottom-up")) {
-        return BottomUp;
+        return flip_bottom_up?Normal:BottomUp;
     }
     if (!strcmp(orientation, "left-up")) {
         return LeftUp;
@@ -86,8 +88,12 @@ void system_fmt(char* format, ...) {
     va_end(args);
 }
 
+void handle_lock_rotation(int sig){
+	isRotationUnlocked ^= 1;
+}
+
 void handle_orientation(enum Orientation orientation, const char* monitor_id) {
-    if (orientation == Undefined || orientation == last_handled_orientation)
+    if (orientation == Undefined || orientation == last_handled_orientation || !isRotationUnlocked)
         return;
 
     // Ran if the --either --left-master or --right-master is pass in
@@ -256,10 +262,15 @@ int main(int argc, char* argv[]) {
         else if (strcmp(argv[i], "--right-master") == 0) {
             rotate_master_layout = 2; // Enable rotate-layout if flag is found
         }
+	else if (strcmp(argv[i], "--flip-bottom-up") ==0){
+	    flip_bottom_up = 1; //Swap bottomUp / Normal orientation
+	}
         else {
             output = argv[i];
         }
     }
+    //signal for locking rotation
+    signal(SIGUSR1,handle_lock_rotation);
 
     // Get monitor ID for the specified output
     char* monitor_id = get_monitor_id(output);
