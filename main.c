@@ -12,8 +12,11 @@ enum Orientation { Normal, LeftUp, BottomUp, RightUp, Undefined};
 DBusError error;
 char* output = "eDP-1"; // Default output device
 int rotate_master_layout = 0; // Default layout
-char isRotationUnlocked = 1; //Default rotation is unlocked
+
 char flip_bottom_up = 0; //Default orientation is not flipped 
+char isRotationUnlocked = 1; //Default rotation is unlocked
+enum Orientation last_handled_orientation = Undefined;
+
 void dbus_disconnect(DBusConnection* connection) {
     dbus_connection_flush(connection);
     dbus_connection_close(connection);
@@ -90,7 +93,7 @@ void handle_lock_rotation(int sig){
 }
 
 void handle_orientation(enum Orientation orientation, const char* monitor_id) {
-    if (orientation == Undefined || !isRotationUnlocked)
+    if (orientation == Undefined || orientation == last_handled_orientation || !isRotationUnlocked)
         return;
 
     // Ran if the --either --left-master or --right-master is pass in
@@ -128,6 +131,8 @@ void handle_orientation(enum Orientation orientation, const char* monitor_id) {
         system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation, orientation, orientation);
 
     }
+
+    last_handled_orientation = orientation;
 }
 
 DBusMessage* request_orientation(DBusConnection* conn) {
@@ -202,7 +207,12 @@ void listen_orientation(DBusConnection* connection, const char* monitor_id) {
         if (msg != NULL) {
             if (dbus_message_is_signal(msg, "org.freedesktop.DBus.Properties",
                     "PropertiesChanged")) {
-                handle_orientation(parse_orientation_signal(msg), monitor_id);
+                if (parse_orientation_signal(msg) != Undefined) {
+                    // Handle batches of messages from sensitive sensors
+                    usleep(1000 * 300); // 300ms
+                    dbus_connection_flush(connection);
+                    init_orientation(connection, monitor_id);
+                }
             } else {
                 dbus_message_unref(msg);
                 break;
