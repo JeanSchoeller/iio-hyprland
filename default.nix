@@ -6,6 +6,7 @@
   ninja,
   dbus,
   pkg-config,
+  jq,
 }:
 stdenv.mkDerivation rec {
   pname = "iio-hyprland";
@@ -18,6 +19,7 @@ stdenv.mkDerivation rec {
     dbus
     meson
     ninja
+    jq
   ];
 
   meta = with lib; {
