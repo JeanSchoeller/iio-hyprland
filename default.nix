@@ -7,6 +7,7 @@
   dbus,
   pkg-config,
   jq,
+  makeWrapper
 }:
 stdenv.mkDerivation rec {
   pname = "iio-hyprland";
@@ -16,11 +17,20 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     pkg-config
-    dbus
     meson
     ninja
+    makeWrapper
+  ];
+
+  buildInputs = [
+    dbus
     jq
   ];
+
+  postInstall = ''
+    wrapProgram "$out/bin/iio-hyprland" \
+      --prefix PATH : "${jq}/bin"
+  '';
 
   meta = with lib; {
     description = "Listen iio-sensor-proxy and auto change Hyprland output orientation";
