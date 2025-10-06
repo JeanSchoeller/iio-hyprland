@@ -79,5 +79,8 @@ Thank you to Desktop31 for fetching the `hyprctl devices` output.
 ## Collaborators
 
 [<img src="https://github.com/ForgotMyPasswd.png" width="30px;"/>](https://github.com/{{ForgotMyPasswd}}) ForgotMyPasswd
-[<img src="https://github.com/Boom-Hacker.png" width="30px;"/>](https://github.com/{{Boom-Hacker}}) ForgotMyPasswd
-[<img src="https://github.com/davydotcom.png" width="30px;"/>](https://github.com/{{davydotcom}}) ForgotMyPasswd
+
+[<img src="https://github.com/Boom-Hacker.png" width="30px;"/>](https://github.com/{{Boom-Hacker}}) Boom-Hacker
+
+[<img src="https://github.com/davydotcom.png" width="30px;"/>](https://github.com/{{davydotcom}}) davydotcom
+
