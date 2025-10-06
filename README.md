@@ -69,6 +69,8 @@ Some users reported that specifying the monitor in hyprland.conf could be necess
 
 `monitor=eDP-1,preferred,auto,2,transform,0`
 
+In some devices, the display orientation may not match the accelerometer orientation (such as on the GPD Pocket series and others). It is possible to set the transform orientation using the `--transform 0,1,2,3` or for GPD Pocket (as an example) `--transform 3,0,1,2` These correspond to the Orientation ENUM (Normal, LeftUp, BotomUp, RightUp ) related to the hyprland transform property. 
+
 ## Touch rotation support
 
 Should automatically rotate all Tablets and Touch Devices from `hyprctl devices`.

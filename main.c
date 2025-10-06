@@ -12,7 +12,7 @@ enum Orientation { Normal, LeftUp, BottomUp, RightUp, Undefined};
 DBusError error;
 char* output = "eDP-1"; // Default output device
 int rotate_master_layout = 0; // Default layout
-
+int orientation_map[4] = {0,1,2,3};
 char flip_bottom_up = 0; //Default orientation is not flipped 
 char isRotationUnlocked = 1; //Default rotation is unlocked
 enum Orientation last_handled_orientation = Undefined;
@@ -95,40 +95,40 @@ void handle_lock_rotation(int sig){
 void handle_orientation(enum Orientation orientation, const char* monitor_id) {
     if (orientation == Undefined || orientation == last_handled_orientation || !isRotationUnlocked)
         return;
-
+    int orientation_transform = orientation_map[orientation];
     // Ran if the --either --left-master or --right-master is pass in
     // (pray that our lord and savior vaxry won't change hyprctl output)
     if (rotate_master_layout == 1) {
         if (orientation == Normal) { // --left-master flag
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
     }
     else if (rotate_master_layout == 2) { // --right-master flag
         if (orientation == Normal) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
         else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation, orientation, orientation, monitor_id);
+            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
     }
     else {
         // Rotates monitor and touch device without changing layout if the --rotate-flag-layout flag is not passed
-        system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation, orientation, orientation);
+        system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation_transform, orientation_transform, orientation_transform);
 
     }
 
@@ -222,6 +222,13 @@ void listen_orientation(DBusConnection* connection, const char* monitor_id) {
     }
 }
 
+void parse_transform(char* transform_str) {
+	orientation_map[0] = transform_str[0] - '0';
+	orientation_map[1] = transform_str[2] - '0';
+	orientation_map[2] = transform_str[4] - '0';
+	orientation_map[3] = transform_str[6] - '0';
+}
+
 char* get_monitor_id(const char* monitor_name) { 
     // Monitor prop for workspace layoutopt rule isn't accepting monitor name, for some reason
     // This is a workaround to get monitor ID instead
@@ -265,13 +272,15 @@ int main(int argc, char* argv[]) {
 	else if (strcmp(argv[i], "--flip-bottom-up") ==0){
 	    flip_bottom_up = 1; //Swap bottomUp / Normal orientation
 	}
+	else if(strcmp(argv[i], "--transform") == 0) {
+          parse_transform(argv[++i]);
+	}	       	
         else {
             output = argv[i];
         }
     }
     //signal for locking rotation
     signal(SIGUSR1,handle_lock_rotation);
-
     // Get monitor ID for the specified output
     char* monitor_id = get_monitor_id(output);
     if (monitor_id == NULL) {
