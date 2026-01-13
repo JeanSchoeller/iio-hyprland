@@ -71,6 +71,8 @@ Some users reported that specifying the monitor in hyprland.conf could be necess
 
 In some devices, the display orientation may not match the accelerometer orientation (such as on the GPD Pocket series and others). It is possible to set the transform orientation using the `--transform 0,1,2,3` or for GPD Pocket (as an example) `--transform 3,0,1,2` These correspond to the Orientation ENUM (Normal, LeftUp, BotomUp, RightUp ) related to the hyprland transform property. 
 
+Note that iio-hyprland uses the `hyprctl` keyword `device:touchdevice:transform`, which sets the transform value for all touch devices that don't have explicit device-specific configurations. So if you already have a specific device config this won't work (e.g. to correctly rotate your display on start - needed for portrait displays that linux doesn't recognise, e.g. GPD Pocket, GPD Win, Chuwi Minibook etc).
+
 ## Touch rotation support
 
 Should automatically rotate all Tablets and Touch Devices from `hyprctl devices`.
