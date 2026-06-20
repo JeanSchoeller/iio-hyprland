@@ -11,7 +11,7 @@ enum Orientation { Normal, LeftUp, BottomUp, RightUp, Undefined};
 
 DBusError error;
 char* output = "eDP-1"; // Default output device
-int rotate_master_layout = 0; // Default layout
+int rotate_layout = 0; // Default layout
 int orientation_map[4] = {0,1,2,3};
 char flip_bottom_up = 0; //Default orientation is not flipped 
 char isRotationUnlocked = 1; //Default rotation is unlocked
@@ -98,38 +98,57 @@ void handle_orientation(enum Orientation orientation, const char* monitor_id) {
     int orientation_transform = orientation_map[orientation];
     // Ran if the --either --left-master or --right-master is pass in
     // (pray that our lord and savior vaxry won't change hyprctl output)
-    if (rotate_master_layout == 1) {
-        if (orientation == Normal) { // --left-master flag
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+    if (rotate_layout == 1) { // --left-master flag
+        if (orientation == Normal || orientation == BottomUp) {
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { orientation = \"left\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
-        else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        else { // This covers RightUp and LeftUp orientations
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { orientation = \"top\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
     }
-    else if (rotate_master_layout == 2) { // --right-master flag
-        if (orientation == Normal) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+    else if (rotate_layout == 2) { // --right-master flag
+        if (orientation == Normal || orientation == BottomUp) {
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { orientation = \"left\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
-        else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        else { // This covers RightUp and LeftUp orientations 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { orientation = \"top\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
-        else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+    }
+    else if (rotate_layout == 3) { // --right-scrolling flag
+        if (orientation == Normal || orientation == BottomUp) {
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"right\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
-        else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        else { // This covers RightUp and LeftUp orientations 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"down\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+    }
+    else if (rotate_layout == 4) { // --down-scrolling flag
+        if (orientation == Normal || orientation == BottomUp) {
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"down\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+        else { // This covers RightUp and LeftUp orientations 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"right\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+    }
+    else if (rotate_layout == 5) { // --left-scrolling flag
+        if (orientation == Normal || orientation == BottomUp) { 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"left\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+        else { // This covers RightUp and LeftUp orientations 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"up\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+    }
+    else if (rotate_layout == 6) { // --up-scrolling flag
+        if (orientation == Normal || orientation == BottomUp) { 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"up\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        }
+        else { // This covers RightUp and LeftUp orientations 
+            system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }) hl.workspace_rule({ workspace = \"m[%s]\", layout_opts = { direction = \"left\" } })'", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
         }
     }
     else {
         // Rotates monitor and touch device without changing layout if the --rotate-flag-layout flag is not passed
-        system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation_transform, orientation_transform, orientation_transform);
-
+        system_fmt("hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } })'", output, orientation_transform, orientation_transform, orientation_transform);
     }
 
     last_handled_orientation = orientation;
@@ -264,10 +283,22 @@ int main(int argc, char* argv[]) {
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--left-master") == 0) {
-            rotate_master_layout = 1; // Enable rotate-layout if flag is found
+            rotate_layout = 1; // Enable rotate-layout if flag is found
         }
         else if (strcmp(argv[i], "--right-master") == 0) {
-            rotate_master_layout = 2; // Enable rotate-layout if flag is found
+            rotate_layout = 2; // Enable rotate-layout if flag is found
+        }
+        else if (strcmp(argv[i], "--right-scrolling") == 0) {
+            rotate_layout = 3;
+        }
+        else if (strcmp(argv[i], "--down-scrolling") == 0) {
+            rotate_layout = 4;
+        }
+        else if (strcmp(argv[i], "--left-scrolling") == 0) {
+            rotate_layout = 5;
+        }
+        else if (strcmp(argv[i], "--up-scrolling") == 0) {
+            rotate_layout = 6;
         }
 	else if (strcmp(argv[i], "--flip-bottom-up") ==0){
 	    flip_bottom_up = 1; //Swap bottomUp / Normal orientation
