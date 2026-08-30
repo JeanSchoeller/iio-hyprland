@@ -1,32 +1,25 @@
-# iio-hyprland
-A fork of okeri/iio-sway for Hyprland
+# iio-lua-hyprland
+A fork of [JeanSchoeller/iio-hyprland](https://github.com/JeanSchoeller/iio-hyprland) that adds support for the new Lua syntax introduced in Hyprland 0.55.
 
-Listens to iio-sensor-proxy and automatically changes Hyprland output orientation
+Listens to iio-sensor-proxy and automatically changes Hyprland output orientation.
 
-## Installing 
+## Installing
 
 :warning: Make sure [iio-sensor-proxy](https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/) running :warning:
-
-### Arch linux
-
-`yay iio-hyprland-git`
-
-`paru iio-hyprland-git`
-
 
 ### Nix/NixOS linux
 
 To install locally
 
 ```sh
-nix profile install github:JeanSchoeller/iio-hyprland
+nix profile install github:ThorTuwy/lua-iio-hyprland
 ```
 
 If you are using flakes to setup your system :
 
 ```nix
 {
-  inputs.iio-hyprland.url = "github:JeanSchoeller/iio-hyprland";
+  inputs.iio-hyprland.url = "github:ThorTuwy/lua-iio-hyprland";
   outputs = {...}@inputs:{};
 }
 ```
@@ -46,14 +39,14 @@ And add it to where you defined your packages :
 ### Build from scratch
 
 ```
-git clone https://github.com/JeanSchoeller/iio-hyprland
+git clone https://github.com/ThorTuwy/lua-iio-hyprland
 
 cd iio-hyprland
 
 sudo make install
 ```
 
-#### Uninstalling 
+#### Uninstalling
 ```
 cd iio-hyprland
 
@@ -61,15 +54,23 @@ sudo make uninstall
 ```
 
 ## Running
-`iio-hyprland [master window location] [monitor to rotate, default=eDP-1]`, run `hyprctl monitors` to list available outputs. Use either `--left-master` or `--right-master` to set the master window location to the left/top or right/bottom, leave blank to not adjust window layout on rotate. 
+`iio-hyprland [master window location] [monitor to rotate, default=eDP-1]`, run `hyprctl monitors` to list available outputs. Use either `--left-master` or `--right-master` to set the master window location to the left/top or right/bottom, leave blank to not adjust window layout on rotate.
 
 Add `exec-once = iio-hyprland` to `~/.config/hypr/hyprland.conf`
 
 Some users reported that specifying the monitor in hyprland.conf could be necessary. For example, on Surface Pro:
 
-`monitor=eDP-1,preferred,auto,2,transform,0`
+```lua
+hl.monitor({
+  output = "eDP-1",
+  mode = "preferred",
+  position = "auto",
+  scale = 2,
+  transform = 0,
+})
+```
 
-In some devices, the display orientation may not match the accelerometer orientation (such as on the GPD Pocket series and others). It is possible to set the transform orientation using the `--transform 0,1,2,3` or for GPD Pocket (as an example) `--transform 3,0,1,2` These correspond to the Orientation ENUM (Normal, LeftUp, BotomUp, RightUp ) related to the hyprland transform property. 
+In some devices, the display orientation may not match the accelerometer orientation (such as on the GPD Pocket series and others). It is possible to set the transform orientation using the `--transform 0,1,2,3` or for GPD Pocket (as an example) `--transform 3,0,1,2` These correspond to the Orientation ENUM (Normal, LeftUp, BotomUp, RightUp ) related to the hyprland transform property.
 
 Note that iio-hyprland uses the `hyprctl` keyword `device:touchdevice:transform`, which sets the transform value for all touch devices that don't have explicit device-specific configurations. So if you already have a specific device config this won't work (e.g. to correctly rotate your display on start - needed for portrait displays that linux doesn't recognise, e.g. GPD Pocket, GPD Win, Chuwi Minibook etc).
 
@@ -78,7 +79,7 @@ Note that iio-hyprland uses the `hyprctl` keyword `device:touchdevice:transform`
 Should automatically rotate all Tablets and Touch Devices from `hyprctl devices`.
 Thank you to Desktop31 for fetching the `hyprctl devices` output.
 
-## Collaborators
+## Collaborators (From the original repo)
 
 [<img src="https://github.com/ForgotMyPasswd.png" width="30px;"/>](https://github.com/{{ForgotMyPasswd}}) ForgotMyPasswd
 
