@@ -99,37 +99,71 @@ void handle_orientation(enum Orientation orientation, const char* monitor_id) {
     // Ran if the --either --left-master or --right-master is pass in
     // (pray that our lord and savior vaxry won't change hyprctl output)
     if (rotate_master_layout == 1) {
-        if (orientation == Normal) { // --left-master flag
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        if (orientation == Normal || orientation == BottomUp ) { // --left-master flag
+            system_fmt(
+                "hyprctl eval \""
+                "hl.monitor({ output = '%s', transform = %d }); "
+                "hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }); "
+                "hl.workspace_rule({ workspace = 'm[%s]', layout_opts = { orientation = 'left' } })\"",
+                output,
+                orientation_transform,
+                orientation_transform,
+                orientation_transform,
+                monitor_id
+            );
         }
-        else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:left\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:top\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        else if (orientation == LeftUp || orientation == RightUp) {
+            system_fmt(
+                "hyprctl eval \""
+                "hl.monitor({ output = '%s', transform = %d }); "
+                "hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }); "
+                "hl.workspace_rule({ workspace = 'm[%s]', layout_opts = { orientation = 'left' } })\"",
+                output,
+                orientation_transform,
+                orientation_transform,
+                orientation_transform,
+                monitor_id
+            );
         }
     }
     else if (rotate_master_layout == 2) { // --right-master flag
-        if (orientation == Normal) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        if (orientation == Normal || orientation == BottomUp) {
+            system_fmt(
+                "hyprctl eval \""
+                "hl.monitor({ output = '%s', transform = %d }); "
+                "hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }); "
+                "hl.workspace_rule({ workspace = 'm[%s]', layout_opts = { orientation = 'right' } })\"",
+                output,
+                orientation_transform,
+                orientation_transform,
+                orientation_transform,
+                monitor_id
+            );
         }
-        else if (orientation == LeftUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else if (orientation == BottomUp) {
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:right\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
-        }
-        else { // This covers RightUp orientation
-            system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d ; keyword workspace m[%s], layoutopt:orientation:bottom\"", output, orientation_transform, orientation_transform, orientation_transform, monitor_id);
+        else if (orientation == LeftUp || orientation == RightUp) {
+            system_fmt(
+                "hyprctl eval \""
+                "hl.monitor({ output = '%s', transform = %d }); "
+                "hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } }); "
+                "hl.workspace_rule({ workspace = 'm[%s]', layout_opts = { orientation = 'bottom' } })\"",
+                output,
+                orientation_transform,
+                orientation_transform,
+                orientation_transform,
+                monitor_id
+            );
         }
     }
     else {
         // Rotates monitor and touch device without changing layout if the --rotate-flag-layout flag is not passed
-        system_fmt("hyprctl --batch \"keyword monitor %s,transform,%d ; keyword input:touchdevice:transform %d ; keyword input:tablet:transform %d\"", output, orientation_transform, orientation_transform, orientation_transform);
-
+        system_fmt(
+            "hyprctl eval 'hl.monitor({ output = \"%s\", transform = %d }) "
+            "hl.config({ input = { touchdevice = { transform = %d }, tablet = { transform = %d } } })'",
+            output,
+            orientation_transform,
+            orientation_transform,
+            orientation_transform
+        );
     }
 
     last_handled_orientation = orientation;
