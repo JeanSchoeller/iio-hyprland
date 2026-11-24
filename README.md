@@ -1,5 +1,4 @@
-# iio-lua-hyprland
-A fork of [JeanSchoeller/iio-hyprland](https://github.com/JeanSchoeller/iio-hyprland) that adds support for the new Lua syntax introduced in Hyprland 0.55.
+# iio-hyprland
 
 Listens to iio-sensor-proxy and automatically changes Hyprland output orientation.
 
