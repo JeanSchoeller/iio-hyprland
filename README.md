@@ -89,3 +89,6 @@ Thank you to Desktop31 for fetching the `hyprctl devices` output.
 [<img src="https://github.com/djfergus.png" width="30px;"/>](https://github.com/{{ThorTuwy}}) ThorTuwy
 
 [<img src="https://github.com/djfergus.png" width="30px;"/>](https://github.com/{{djfergus}}) djfergus
+
+[<img src="https://github.com/commonkestrel.png" width="30px;"/>](https://github.com/{{commonkestrel}}) commonkestrel
+
